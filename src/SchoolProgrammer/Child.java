@@ -77,14 +77,21 @@ public class Child
     }
 
     //Metody  ----------------------------------------------------------------------------------------------------------
-    public void drukujDane(){
-        System.out.println();
+    public void drukujDanePelne(){
+        System.out.println("###################################################################################################");
         System.out.println("Dane z systemu:");
         System.out.println("Imię: " + this.imie);
         System.out.println("Nazwisko: " + this.nazwisko);
         System.out.println("Wiek: " + this.wiek);
         System.out.println("Adres zamieszkania: " + this.adresZamieszkania);
-        System.out.println();
+        System.out.println("Grupa: " + this.grupa);
+    }
+
+    public void drukujDaneUproszczone(){
+        System.out.println("###################################################################################################");
+        System.out.println("Imię: " + this.imie);
+        System.out.println("Nazwisko: " + this.nazwisko);
+        System.out.println("Grupa: " + this.grupa);
     }
 
 }

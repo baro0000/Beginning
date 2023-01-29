@@ -1,7 +1,5 @@
 package SchoolProgrammer;
 
-import java.sql.SQLOutput;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -9,15 +7,14 @@ import java.util.Scanner;
  * @version 1.0.0
  */
 
-public class Programmer
+public class MainMenu
 {
     /**
      * Creator calls method to view menu.
      */
-    Programmer()
+    MainMenu()
     {
         startMenu();
-        //childDatabase = new Child[10];
     }
 
 
@@ -28,39 +25,32 @@ public class Programmer
     {
         System.out.println();
         System.out.println();
-        System.out.println("                   Main Menu");
-        System.out.println("                   1. Child Database");
-        System.out.println("                   2. Child stay report");
-        System.out.println("                   3. Calculate frequency");
-        System.out.println("                   4. Set costs");
-        System.out.println("                   5. Calculate cost for each child");
-        System.out.println("                   6. Parents interface");
-        System.out.println("                   7. Exit");
-        System.out.print("                     Choose option number: ");
+        System.out.println(" Main Menu");
+        System.out.println(" 1. Child Database");
+        System.out.println(" 2. Child stay report");
+        System.out.println(" 3. Calculate frequency");
+        System.out.println(" 4. Set costs");
+        System.out.println(" 5. Calculate cost for each child");
+        System.out.println(" 6. Parents interface");
+        System.out.println(" 7. Exit");
+        System.out.print(" Choose option number: ");
     }
-
-    /**
-     * Method takes user input and check if it is int type. It prevents to proceed by user invalid data type like String, char or wrong option number.
-     *
-     * @return Method returns int value CHOICE if it is in menu range (is not smaller than 1 and not bigger than 7)
-     */
-
 
     /**
      * Metoda korzystająca z wydruku menu, następnie wykorzystuje metodę inputValidator by upewnić się, że wprowadzone dane są prawidłowe. Korzystając ze switch'a uzyskujemy dostęp do różnych funkcji.
      * przy wybraniu nr 7 Exit - program ulega zakończeniu.
      *
-     * @see Programmer
+     * @see MainMenu
      */
-    private void startMenu()
+    public void startMenu()
     {
         while (true)
         {
             printMenu();
 
             Scanner scanner = new Scanner(System.in);
-            Menager menager = new Menager();
             int choice = InputValidator.validate(7);
+            System.out.println(choice);
 
             for (int i = 0; i < 20; i++)
                 System.out.println();
@@ -69,21 +59,8 @@ public class Programmer
             {
                 case 1 ->
                 {
-                    System.out.println("Baza danych dzieci");
-                    System.out.println("Wciśnij dowolny klawisz by powrócić do menu");
-                    for (int i = 0; i < 3; i++)
-                    {
-                        menager.addChildToDatabase();
-                    }
-                    for (Child item : menager.childDatabase)
-                    {
-                        if (item instanceof Child)
-                        {
-                            System.out.println("############################################");
-                            item.drukujDane();
-                        }
-                    }
-                    //scanner.nextLine();
+                    ChildDatabase cData = new ChildDatabase();
+                    cData.childDataMenu();
                 }
                 case 2 ->
                 {
@@ -118,11 +95,10 @@ public class Programmer
                 case 7 -> System.out.println("7. Exit");
                 default -> System.out.println("to jest default");
             }
-            for (int i = 0; i < 20; i++)
-                System.out.println();
 
             if (choice == 7)
             {
+                scanner.close();
                 break;
             }
         }
