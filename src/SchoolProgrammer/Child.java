@@ -1,11 +1,13 @@
 package SchoolProgrammer;
 
+import java.io.Serializable;
+
 /**
  * @author Bartosz Kuliński
  * @version 1.0.0
  */
 
-public class Child
+public class Child implements Serializable
 {
 
     private String imie;
