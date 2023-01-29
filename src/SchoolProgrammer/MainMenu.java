@@ -1,5 +1,8 @@
 package SchoolProgrammer;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -44,6 +47,9 @@ public class MainMenu
      */
     public void startMenu()
     {
+        ChildDatabase database = new ChildDatabase();
+        database.childDatabase = loadChildDatabase();
+
         while (true)
         {
             printMenu();
@@ -59,8 +65,7 @@ public class MainMenu
             {
                 case 1 ->
                 {
-                    ChildDatabase cData = new ChildDatabase();
-                    cData.childDataMenu();
+                    database.childDataMenu();
                 }
                 case 2 ->
                 {
@@ -92,8 +97,7 @@ public class MainMenu
                     System.out.println("Wciśnij dowolny klawisz by powrócić do menu");
                     scanner.nextLine();
                 }
-                case 7 -> System.out.println("7. Exit");
-                default -> System.out.println("to jest default");
+                case 7 -> saveChildDatabase(database.childDatabase);
             }
 
             if (choice == 7)
@@ -102,6 +106,35 @@ public class MainMenu
                 break;
             }
         }
+    }
+
+    private void saveChildDatabase(ArrayList<Child> lista){
+        Database database = new Database();
+        //Zapisanie do pliku dzieci po zakończeniu programu
+        try
+        {
+            database.writeObject(lista);
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ArrayList<Child> loadChildDatabase(){
+        Database database = new Database();
+        ArrayList<Child> childList;
+        //Zapisanie do pliku dzieci po zakończeniu programu
+        try
+        {
+            childList =  database.readObject();
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return childList;
     }
 
 

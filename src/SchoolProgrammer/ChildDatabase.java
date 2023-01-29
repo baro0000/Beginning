@@ -1,6 +1,7 @@
 package SchoolProgrammer;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -15,8 +16,8 @@ public class ChildDatabase implements Serializable
      * grupy określa kolekcje dostępnych grup do wykorzystania przy tworzeniu obiektu dziecka - każde dziecko zostanie przypisane do odpowiedniej grupy.
      */
     private static String[] grupy = {"Niedźwiadki", "Krasnoludki", "Płomyki"};
-    private int nextId = 0;
-    private Child[] childDatabase = new Child[10];
+    private int nextId;
+    public ArrayList<Child> childDatabase = new ArrayList<>();
 
 //__METODY_______________________________________________________________________________________________________________________________________________________________
 
@@ -70,14 +71,14 @@ public class ChildDatabase implements Serializable
                 }
                 case 3 ->
                 {
-                    searchDatabaseForChild();
+                    //searchDatabaseForChild();
                     System.out.println("Press any key to return to previous menu...");
                     scanner.nextLine();
 
                 }
                 case 4 ->
                 {
-                    editData();
+                   // editData();
                 }
             }
 
@@ -129,7 +130,7 @@ public class ChildDatabase implements Serializable
             case 3 -> grupa = grupy[2];
         }
         Child child = new Child(imie, nazwisko, wiek, adresZamieszkania, grupa);
-        childDatabase[nextId] = child;
+        childDatabase.add(child);
         nextId++;
     }
 
@@ -148,7 +149,8 @@ public class ChildDatabase implements Serializable
         int[] pozycja = new int[5]; // Uzyskujemy w postaci tablicy indeksy wszystkich obiektów, które pasują do kryteriów wyszukiwania
         pozycja[0] = -1; // umożliwia to sprawdzenie w edycji czy jakikolwiek obiekt został dodany do tego array. Jeśli tak to pozycja[0] zwróci wartość inną niż ujemną.
 
-        for (int a = 0; a < childDatabase.length; a++)
+        for(Child child: childDatabase)
+        /*for (int a = 0; a < childDatabase.size(); a++)
         {
             if (childDatabase[a] instanceof Child)
             {
@@ -165,7 +167,7 @@ public class ChildDatabase implements Serializable
                     }
                 }
             }
-        }
+        }*/
         if (i == 0)
             System.out.println("Child data hasn't been found in database. Check your input");
         else
@@ -175,7 +177,7 @@ public class ChildDatabase implements Serializable
 
     /**
      * Metoda pozwala edytować dane obiektu dziecko
-     */
+     *//*
     private void editData()
     {
         Scanner scanner = new Scanner(System.in);
@@ -222,7 +224,7 @@ public class ChildDatabase implements Serializable
                     break;
             }
         }
-    }
+    }*/
 
 
 }
