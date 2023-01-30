@@ -26,8 +26,8 @@ public class ChildDatabase implements Serializable
     {
         System.out.println(" Child Database:");
         System.out.println(" 1. Add new child to database");
-        System.out.println(" 2. Print all children in database");
-        System.out.println(" 3. Search database for specific child");
+        System.out.println(" 2. Remove child from database");
+        System.out.println(" 3. Print all children in database");
         System.out.println(" 4. Edit child data");
         System.out.println(" 5. Return to main manu");
         System.out.print(" Choose option: ");
@@ -61,6 +61,12 @@ public class ChildDatabase implements Serializable
                 }
                 case 2 ->
                 {
+                    removeChildFromDatabase();
+                    System.out.println("Press any key to return to previous menu...");
+                    scanner.nextLine();
+                }
+                case 3 ->
+                {
                     for (Child child : childDatabase)
                     {
                         if (child instanceof Child)
@@ -68,17 +74,11 @@ public class ChildDatabase implements Serializable
                     }
                     System.out.println("Press any key to return to previous menu...");
                     scanner.nextLine();
-                }
-                case 3 ->
-                {
-                    //searchDatabaseForChild();
-                    System.out.println("Press any key to return to previous menu...");
-                    scanner.nextLine();
 
                 }
                 case 4 ->
                 {
-                   // editData();
+                   editData();
                 }
             }
 
@@ -134,10 +134,34 @@ public class ChildDatabase implements Serializable
         nextId++;
     }
 
+    private void removeChildFromDatabase()
+    {
+        Scanner scanner = new Scanner(System.in);
+
+        ArrayList<Integer> pozycje = searchDatabaseForChild();
+        System.out.print("Wybierz pozycję do usunięcia z bazy danych: ");
+
+        if (pozycje.get(0) >= 0)
+        {
+            //Integer childNumber = pozycje.get(InputValidator.validate(pozycje.size()) - 1); //pobiera pozycję obiektu z bazy danych i kopiuje jego referencje do zmiennej child.
+            Child child = childDatabase.get(pozycje.get(InputValidator.validate(pozycje.size()) - 1));
+            System.out.println("Czy na pewno chcesz usunąć tą pozycję?\n1. Tak\n2. Nie");
+            int decyzja = InputValidator.validate(2);
+            if(decyzja == 1)
+            {
+                childDatabase.remove(child);
+                if(!childDatabase.contains(child))
+                    System.out.println("Obiekt został poprawnie usunięty.");
+                else
+                    System.out.println("Coś poszło nie tak! Skontaktuj się ze wsparciem technicznym");
+            }
+        }
+    }
+
     /**
      * Metoda przeszukuje bazę danych Array w poszukiwaniu dziecka
      */
-    private int[] searchDatabaseForChild()
+    private ArrayList<Integer> searchDatabaseForChild()
     {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Wprowadź Imie: ");
@@ -146,28 +170,29 @@ public class ChildDatabase implements Serializable
         String nazwisko = scanner.nextLine();
 
         int i = 0;   //wskaźnik czy jakekolwiek obiekty zostały znalezione
-        int[] pozycja = new int[5]; // Uzyskujemy w postaci tablicy indeksy wszystkich obiektów, które pasują do kryteriów wyszukiwania
-        pozycja[0] = -1; // umożliwia to sprawdzenie w edycji czy jakikolwiek obiekt został dodany do tego array. Jeśli tak to pozycja[0] zwróci wartość inną niż ujemną.
+        ArrayList<Integer> pozycja = new ArrayList<Integer>(); // Uzyskujemy w postaci tablicy indeksy wszystkich obiektów, które pasują do kryteriów wyszukiwania
+        pozycja.add(-1); // umożliwia to sprawdzenie w edycji czy jakikolwiek obiekt został dodany do tego array. Jeśli tak to pozycja[0] zwróci wartość inną niż ujemną.
 
-        for(Child child: childDatabase)
-        /*for (int a = 0; a < childDatabase.size(); a++)
-        {
-            if (childDatabase[a] instanceof Child)
-            {
-                if (childDatabase[a].getImie().equals(imie) && childDatabase[a].getNazwisko().equals(nazwisko))
-                {
-                    if (i > 4)
-                        System.out.println("Znaleziono zbyt wiele rekordów. Zawęź kryteria wyszukiwania!");
+        for(Child child: childDatabase){
+            //Sprawdzamy czy obiekt jest typu Child
+            if (child instanceof Child){
+                // oraz czy jego imie i nazwisko zgadzają się z poszukiwanymi
+                if (child.getImie().equals(imie) && child.getNazwisko().equals(nazwisko)){
+                    //Jeśli to pierwszy znaleziony obiekt zastępujemy -1 indeksem tego obiektu
+                    if(i == 0)
+                        pozycja.set(i, childDatabase.indexOf(child));
+                    //Zaś następne tylko dodajemy jako kolejne na liście
                     else
-                    {
-                        System.out.print("Pozycja nr " + (i + 1));
-                        childDatabase[a].drukujDanePelne();
-                        pozycja[i] = a;
-                        i++;
-                    }
+                        pozycja.add(childDatabase.indexOf(child));
+
+                    i++;
+                    System.out.print("### POZYCJA NR " + i + " #");
+                    child.drukujDanePelne();
                 }
             }
-        }*/
+        }
+
+        System.out.println();
         if (i == 0)
             System.out.println("Child data hasn't been found in database. Check your input");
         else
@@ -177,17 +202,17 @@ public class ChildDatabase implements Serializable
 
     /**
      * Metoda pozwala edytować dane obiektu dziecko
-     *//*
+     */
     private void editData()
     {
         Scanner scanner = new Scanner(System.in);
 
-        int[] pozycje = searchDatabaseForChild();
+        ArrayList<Integer> pozycje = searchDatabaseForChild();
         System.out.print("Wybierz pozycję do edycji: ");
 
-        if (pozycje[0] >= 0)
+        if (pozycje.get(0) >= 0)
         {
-            Child child = childDatabase[pozycje[InputValidator.validate(5) - 1]]; //pobiera pozycję obiektu z bazy danych i kopiuje jego referencje do zmiennej child.
+            Child child = childDatabase.get(pozycje.get(InputValidator.validate(pozycje.size()) - 1)); //pobiera pozycję obiektu z bazy danych i kopiuje jego referencje do zmiennej child.
             while (true)
             {
                 System.out.println("1. Imię: " + child.getImie());
@@ -224,7 +249,7 @@ public class ChildDatabase implements Serializable
                     break;
             }
         }
-    }*/
+    }
 
 
 }
