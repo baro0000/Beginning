@@ -2,6 +2,7 @@ package SchoolProgrammer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -16,8 +17,7 @@ public class ChildDatabase implements Serializable
      * grupy określa kolekcje dostępnych grup do wykorzystania przy tworzeniu obiektu dziecka - każde dziecko zostanie przypisane do odpowiedniej grupy.
      */
     private static String[] grupy = {"Niedźwiadki", "Krasnoludki", "Płomyki"};
-    private int nextId;
-    public ArrayList<Child> childDatabase = new ArrayList<>();
+    public static ArrayList<Child> childDatabase = new ArrayList<>();
 
 //__METODY_______________________________________________________________________________________________________________________________________________________________
 
@@ -29,7 +29,8 @@ public class ChildDatabase implements Serializable
         System.out.println(" 2. Remove child from database");
         System.out.println(" 3. Print all children in database");
         System.out.println(" 4. Edit child data");
-        System.out.println(" 5. Return to main manu");
+        System.out.println(" 5. Print group list");
+        System.out.println(" 6. Return to main manu");
         System.out.print(" Choose option: ");
 
 
@@ -47,9 +48,8 @@ public class ChildDatabase implements Serializable
 
             printChildDatabaseMenu();
 
-            InputValidator inputValidator = new InputValidator();
             Scanner scanner = new Scanner(System.in);
-            int choice = inputValidator.validate(5);
+            int choice = InputValidator.validate(6);
 
             switch (choice)
             {
@@ -80,13 +80,41 @@ public class ChildDatabase implements Serializable
                 {
                    editData();
                 }
+                case 5 ->
+                {
+
+
+                }
             }
 
-            if (choice == 5)
+            if (choice == 6)
             {
                 break;
             }
         }
+    }
+
+    /**
+     * @return Funkcja zwraca niepowtarzalny kod 6-cio cyfrowy
+     */
+    public String nextPossibleIdCode()
+    {
+       ArrayList<String> codes = new ArrayList<>();
+       for(Child child: childDatabase)
+           codes.add(child.getIndywidualnyKod());
+       String individualCode = "";
+       Random rand = new Random();
+       while(true) {
+           for (int i = 0; i < 6; i++)
+               individualCode += rand.nextInt(10);
+           for(String item: codes){
+               if(individualCode.equals(item))
+                   individualCode = "";
+           }
+           if(!individualCode.equals(""))
+               break;
+       }
+       return individualCode;
     }
 
     /**
@@ -129,9 +157,8 @@ public class ChildDatabase implements Serializable
             case 2 -> grupa = grupy[1];
             case 3 -> grupa = grupy[2];
         }
-        Child child = new Child(imie, nazwisko, wiek, adresZamieszkania, grupa);
+        Child child = new Child(imie, nazwisko, wiek, adresZamieszkania, grupa, nextPossibleIdCode());
         childDatabase.add(child);
-        nextId++;
     }
 
     private void removeChildFromDatabase()
@@ -158,10 +185,35 @@ public class ChildDatabase implements Serializable
         }
     }
 
+    public ArrayList<Integer> searchDatabaseForChild(){
+        System.out.println(" Wybierz metodę wyszukiwania:");
+        System.out.println(" 1. Po imieniu i nazwisku");
+        System.out.println(" 2. Po ID");
+        System.out.println(" 3. Po grupie");
+        ArrayList<Integer> result = new ArrayList<>();
+
+        int choice = InputValidator.validate(3);
+        switch(choice){
+            case 1 -> {
+                return searchDatabaseForChildByName();
+            }
+            case 2 -> {
+
+                result.add(searchDatabaseForChildByID());
+                return result;
+            }
+            case 3 -> {
+                return searchDatabaseForChildByGroup();
+            }
+        }
+        System.out.println("Coś poszło nie tak!!!");
+        return result;
+    }
+
     /**
-     * Metoda przeszukuje bazę danych Array w poszukiwaniu dziecka
+     * Metoda przeszukuje bazę danych Array w poszukiwaniu dziecka po imieniu i nazwisku
      */
-    private ArrayList<Integer> searchDatabaseForChild()
+    private ArrayList<Integer> searchDatabaseForChildByName()
     {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Wprowadź Imie: ");
@@ -200,15 +252,87 @@ public class ChildDatabase implements Serializable
         return pozycja;
     }
 
+    private int searchDatabaseForChildByID()
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Wprowadź numer ID: ");
+        String id = InputValidator.validatePersonalId();
+
+        for(Child child: childDatabase){
+            //Sprawdzamy czy obiekt jest typu Child
+            if (child instanceof Child){
+                // oraz czy jego imie i nazwisko zgadzają się z poszukiwanymi
+                if (child.getIndywidualnyKod().equals(id)){
+                    child.drukujDanePelne();
+                    return childDatabase.indexOf(child);
+                }
+            }
+        }
+        System.out.println();
+        return -1;
+    }
+
+    private ArrayList<Integer> searchDatabaseForChildByGroup()
+    {
+        System.out.println(" Wybierz grupę: ");
+        System.out.println(" 1. Niedźwiadki");
+        System.out.println(" 2. Krasnoludki");
+        System.out.println(" 3. Płomyki");
+        int choiceGrupa = InputValidator.validate(3);
+        String grupa = "";
+        switch (choiceGrupa)
+        {
+            case 1 -> grupa = grupy[0];
+            case 2 -> grupa = grupy[1];
+            case 3 -> grupa = grupy[2];
+        }
+
+        int i = 0;   //wskaźnik czy jakekolwiek obiekty zostały znalezione
+        ArrayList<Integer> pozycja = new ArrayList<Integer>(); // Uzyskujemy w postaci tablicy indeksy wszystkich obiektów, które pasują do kryteriów wyszukiwania
+        pozycja.add(-1); // umożliwia to sprawdzenie w edycji czy jakikolwiek obiekt został dodany do tego array. Jeśli tak to pozycja[0] zwróci wartość inną niż ujemną.
+
+        for(Child child: childDatabase){
+            //Sprawdzamy czy obiekt jest typu Child
+            if (child instanceof Child){
+                // oraz czy jego imie i nazwisko zgadzają się z poszukiwanymi
+                if (child.getGrupa().equals(grupa)){
+                    //Jeśli to pierwszy znaleziony obiekt zastępujemy -1 indeksem tego obiektu
+                    if(i == 0)
+                        pozycja.set(i, childDatabase.indexOf(child));
+                        //Zaś następne tylko dodajemy jako kolejne na liście
+                    else
+                        pozycja.add(childDatabase.indexOf(child));
+
+                    i++;
+                    System.out.print("### POZYCJA NR " + i + " #");
+                    child.drukujDanePelne();
+                }
+            }
+        }
+
+        System.out.println();
+        if (i == 0)
+            System.out.println("Child data hasn't been found in database. Check your input");
+        else
+            System.out.println(i + " children has been found.");
+        return pozycja;
+    }
+
     /**
      * Metoda pozwala edytować dane obiektu dziecko
      */
-    private void editData()
+    private int editData()
     {
         Scanner scanner = new Scanner(System.in);
 
         ArrayList<Integer> pozycje = searchDatabaseForChild();
-        System.out.print("Wybierz pozycję do edycji: ");
+        if(pozycje.get(0) >= 0)
+            System.out.print("Wybierz pozycję do edycji: ");
+        else{
+            System.out.println("Błąd wyszukiwania! Spróbuj ponownie!");
+            return 0;
+        }
+
 
         if (pozycje.get(0) >= 0)
         {
@@ -249,6 +373,7 @@ public class ChildDatabase implements Serializable
                     break;
             }
         }
+        return 1;
     }
 
 

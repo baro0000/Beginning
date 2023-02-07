@@ -3,16 +3,15 @@ package SchoolProgrammer;
 import java.io.*;
 import java.util.ArrayList;
 
-public class Database implements Serializable
-{
-    public void writeObject(ArrayList<Child> listStudents) throws IOException
-    {
+public class Database implements Serializable {
+    //################################################################################################################
+    public void writeObject(ArrayList<Child> listOfChildren, String path) throws IOException {
         //Create FileOutputStream to write file
-        FileOutputStream fos = new FileOutputStream("D:\\Programy\\Intellij\\Java Projects\\Beginning\\src\\SchoolProgrammer\\databasefile.txt");
+        FileOutputStream fos = new FileOutputStream(path);
         //Create ObjectOutputStream to write object
         ObjectOutputStream objOutputStream = new ObjectOutputStream(fos);
         //Write object to file
-        for (Child obj : listStudents) {
+        for (Child obj : listOfChildren) {
 
             objOutputStream.writeObject(obj);
             objOutputStream.reset();
@@ -20,10 +19,26 @@ public class Database implements Serializable
         objOutputStream.close();
     }
 
-    public ArrayList<Child> readObject() throws ClassNotFoundException, IOException {
-        ArrayList<Child> listStudents = new ArrayList();
+    public void writeObjectDayRaport(ArrayList<AttendanceOfDay> listOfRaports, String path) throws IOException {
+        //Create FileOutputStream to write file
+        FileOutputStream fos = new FileOutputStream(path);
+        //Create ObjectOutputStream to write object
+        ObjectOutputStream objOutputStream = new ObjectOutputStream(fos);
+        //Write object to file
+        for (AttendanceOfDay raport : listOfRaports) {
+
+            objOutputStream.writeObject(raport);
+            objOutputStream.reset();
+        }
+        objOutputStream.close();
+    }
+
+
+    //################################################################################################################
+    public ArrayList<Child> readObject(String path) throws ClassNotFoundException, IOException {
+        ArrayList<Child> listStudents = new ArrayList<Child>();
         //Create new FileInputStream object to read file
-        FileInputStream fis = new FileInputStream("D:\\Programy\\Intellij\\Java Projects\\Beginning\\src\\SchoolProgrammer\\databasefile.txt");
+        FileInputStream fis = new FileInputStream(path);
         //Create new ObjectInputStream object to read object from file
         ObjectInputStream obj = new ObjectInputStream(fis);
         try {
@@ -37,5 +52,13 @@ public class Database implements Serializable
         }
         return listStudents;
     }
+
+    public boolean ifFileExists(String path){
+        File plik = new File(path);
+        if(plik.exists() && !plik.isDirectory())
+            return true;
+        return false;
+    }
+
 }
 

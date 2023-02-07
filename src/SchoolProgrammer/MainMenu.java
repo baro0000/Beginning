@@ -48,7 +48,7 @@ public class MainMenu
     public void startMenu()
     {
         ChildDatabase database = new ChildDatabase();
-        database.childDatabase = loadChildDatabase();
+        //database.childDatabase = loadChildDatabase();
 
         while (true)
         {
@@ -97,7 +97,15 @@ public class MainMenu
                     System.out.println("Wciśnij dowolny klawisz by powrócić do menu");
                     scanner.nextLine();
                 }
-                case 7 -> saveChildDatabase(database.childDatabase);
+                //case 7 -> saveChildDatabase(database.childDatabase);
+                case 8 -> {
+                    keypad();
+                    for(Child child: ChildDatabase.childDatabase){
+                        if(child instanceof Child){
+                            child.printLists();
+                        }
+                    }
+                }
             }
 
             if (choice == 7)
@@ -108,12 +116,17 @@ public class MainMenu
         }
     }
 
+    private void keypad(){
+        ExternalKeypad keypad = new ExternalKeypad();
+        keypad.takeInput();
+    }
+
     private void saveChildDatabase(ArrayList<Child> lista){
         Database database = new Database();
         //Zapisanie do pliku dzieci po zakończeniu programu
         try
         {
-            database.writeObject(lista);
+            database.writeObject(lista, "src/SchoolProgrammer/databasefile.txt");
         } catch (IOException e)
         {
             throw new RuntimeException(e);
@@ -122,17 +135,17 @@ public class MainMenu
 
     private ArrayList<Child> loadChildDatabase(){
         Database database = new Database();
-        ArrayList<Child> childList;
-        //Zapisanie do pliku dzieci po zakończeniu programu
-        try
-        {
-            childList =  database.readObject();
-        } catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e)
-        {
-            throw new RuntimeException(e);
+        ArrayList<Child> childList = new ArrayList<>();
+        //Odczytanie z pliku dzieci przy rozpoczęciu programu
+        if(database.ifFileExists("src/SchoolProgrammer/databasefile.txt")) {
+            try {
+                childList = database.readObject("src/SchoolProgrammer/databasefile.txt");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            return childList;
         }
         return childList;
     }
