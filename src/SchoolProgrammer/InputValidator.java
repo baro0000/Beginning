@@ -8,7 +8,7 @@ public class InputValidator {
     /**
      * Method takes user input and check if it is int type. It prevents to proceed by user invalid data type like String, char or wrong option number.
      *
-     * @return Method returns int value CHOICE if it is in menu range (is not smaller than 1 and not bigger than 7)
+     * @return Method returns int value CHOICE if it is in menu range (is not smaller than 1 and not bigger than X)
      */
     public static int validate(int numberOfPossibleOptions) {
         int choice = 0;
@@ -16,16 +16,32 @@ public class InputValidator {
         try {
             choice = scanner.nextInt();
             if (choice > numberOfPossibleOptions || choice < 1) {
-                throw new Exception("Numer opcji poza zasięgiem!");
+                System.out.println("Wprowadzono liczbę spoza zakresu! Wprowadź ponownie: ");
+                choice = validate(numberOfPossibleOptions);
             }
         } catch (InputMismatchException ex) {
             System.out.println(ex.getMessage() + " prawdopodobnie wprowadziłeś niewłaściwy typ danych!");
-            validate(numberOfPossibleOptions);
+            choice = validate(numberOfPossibleOptions);
         } catch (Exception ex) {
             System.out.println(ex.getMessage() + " - Wystąpił nieznany błąd! Skontaktuj się ze wsparciem technicznym.");
         }
 
         return choice;
+    }
+
+    public static double validateDoubleType() {
+        double num = 0;
+        Scanner scanner = new Scanner(System.in);
+        try {
+            num = scanner.nextDouble();
+        } catch (InputMismatchException ex) {
+            System.out.println(ex.getMessage() + " prawdopodobnie wprowadziłeś niewłaściwy typ danych!\nWprowadź ponownie:");
+            num = validateDoubleType();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage() + " - Wystąpił nieznany błąd! Skontaktuj się ze wsparciem technicznym.");
+        }
+
+        return num;
     }
 
     /**

@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @version 1.0.0
  */
 
-public class Child implements Serializable {
+public class Child {
 
     private String imie;
     private String nazwisko;
@@ -81,6 +81,16 @@ public class Child implements Serializable {
     }
 
     //Metody  ----------------------------------------------------------------------------------------------------------
+    @Override
+    public String toString() {
+        String result = imie + ";;" + nazwisko + ";;" + wiek + ";;" + adresZamieszkania + ";;" + grupa + ";;" + indywidualnyKod + ";;";
+        for (ArrayList<AttendanceOfDay> listaRaportowZMiesiaca : frekwencja)
+            if (listaRaportowZMiesiaca != null)
+                for (AttendanceOfDay raport : listaRaportowZMiesiaca)
+                    result += raport.toString() + "#";
+        return result;
+    }
+
     public int dodajNowyRaport() {
         //Sprawdzenie czy pod wskazanym indeksem miesiąca jest już Arraylist, jeśli tak to dodaje kolejny raport dnia, jeśli nie to najpierw tworzy nowy Array list
         AttendanceOfDay raportDnia = new AttendanceOfDay();
@@ -113,8 +123,7 @@ public class Child implements Serializable {
                         return 0;
                     } else // Jeśli nie chce edytować to wychodzimy
                         return 0;
-                }
-                else {
+                } else {
                     // Jeśli nie jest zamknięty to zamykamy i wychodzimy
                     lastRaport.settingExit();
                     System.out.println("Zapisano wpis.\nGodzina wejścia: " + lastRaport.getGodzinaWejscia() + "\nGodzina wyjścia: " + lastRaport.getGodzinaWyjscia());
@@ -130,37 +139,95 @@ public class Child implements Serializable {
         return 0;
     }
 
-    public void printLists(){
-        for(ArrayList<AttendanceOfDay> lista: frekwencja){
-            if(lista != null){
-                for(AttendanceOfDay raport: lista){
-                    System.out.println(raport.dzien + "." + raport.miesiac + "." + raport.rok + " rok Godzina wejścia: " + raport.getGodzinaWejscia() + " - Godzina wyjścia: " + raport.godzinaWyjscia);
+    public void printLists() {
+        for (ArrayList<AttendanceOfDay> lista : frekwencja) {
+            if (lista != null) {
+                for (AttendanceOfDay raport : lista) {
+                    System.out.println(raport.dzien + "." + raport.miesiac + "." + raport.rok + " rok Godzina wejścia: " + raport.getGodzinaWejscia() + " - Godzina wyjścia: DUPA" + raport.godzinaWyjscia);
                     System.out.println(raport.getTimeOfAttendenceDay());
                 }
             }
         }
     }
-// nietestowane
-    public void zakonczenieRoku(String year) {
+
+    public int[] calculateTime(ArrayList<int[]> listaRaportow) {
+        int[] result = new int[3];
+        int temp = 0;
+        for (int[] time : listaRaportow) {
+            for (int a = 2; a > -1; a--) {
+                temp = result[a] + time[a];
+                if (a == 0) {
+                    result[a] = temp;
+                    continue;
+                }
+                if (temp <= 59) {
+                    result[a] = temp;
+                } else {
+                    result[a - 1] += temp / 60;
+                    result[a] = temp % 60;
+                }
+            }
+        }
+        return result;
+    }
+
+    public int[] calculateAttendanceTime(int choice, int monthNumber) {
+        int[] result = new int[4];
+        ArrayList<int[]> temporary = new ArrayList<>();
+        if (choice == 0) {
+            System.out.println("Wybierz podsumowanie: ");
+            System.out.println("1. Roczne");
+            System.out.println("2. Miesięczne");
+            choice = InputValidator.validate(2);
+
+        }
+
+        if (choice == 1) {
+            ArrayList<int[]> totalSummaryList = new ArrayList<>();
+            int[] totalSummary;
+            for (int i = 0; i < frekwencja.length; i++) {
+                if (frekwencja[i] != null) {
+                    for (AttendanceOfDay raport : frekwencja[i])
+                        temporary.add(raport.timeOfAttendenceDay);
+                    totalSummary = calculateTime(temporary);
+                    totalSummaryList.add(totalSummary);
+                    temporary.clear();
+                }
+            }
+                result = calculateTime(totalSummaryList);
+                return result;
+
+        } else if (choice == 2) {
+
+            if(monthNumber == 0) {
+                OrganisationData.drukujListeMiesiecy();
+                monthNumber = InputValidator.validate(12);
+
+            }
+            result[3] = monthNumber - 1;
+            for(AttendanceOfDay raport : frekwencja[monthNumber - 1])
+                temporary.add(raport.timeOfAttendenceDay);
+            int[] temp = calculateTime(temporary);
+            result[0] = temp[0];
+            result[1] = temp[1];
+            result[2] = temp[2];
+
+            return result;
+        } else {
+            System.out.println("Błąd! Coś poszło nie tak");
+        }
+        return result;
+    }
+
+//nietestowane
+    /*public void zakonczenieRoku(int year) {
         //Domknięcie grudnia
         for (AttendanceOfDay raport : frekwencja[11]) {
             raport.closeDay();
         }
-        Database database = new Database();
-        //Ustawienie nazwy pliku tak by można wyizolować kod osoby i rok
-        String path = "src/SchoolProgrammer/" + "#" + indywidualnyKod + "#" + "-" + "#" + year + "#" + ".txt";
-        ArrayList<AttendanceOfDay> lista = new ArrayList<>();
-        try {
-            //Przerobienie bazy na pojedyncza liste
-            for (ArrayList<AttendanceOfDay> item : frekwencja) {
-                for (AttendanceOfDay raport : item)
-                    lista.add(raport);
-            }
-            database.writeObjectDayRaport(lista, path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
+    }*/
+
 
     public void drukujDanePelne() {
         System.out.println("###################################################################################################");
@@ -179,6 +246,23 @@ public class Child implements Serializable {
         System.out.println("Imię: " + this.imie);
         System.out.println("Nazwisko: " + this.nazwisko);
         System.out.println("Grupa: " + this.grupa);
+    }
+
+    public void drukujFrekwencje() {
+        String[] month = {"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
+        for (int i = 0; i < frekwencja.length; i++) {
+            if (frekwencja[i] != null) {
+                System.out.println(month[i] + "\n");
+                for (AttendanceOfDay raport : frekwencja[i]) {
+                    System.out.println("Data: " + raport.dzien + "." + raport.miesiac + "." + raport.rok);
+                    System.out.println("Godzina wjścia: " + raport.godzinaWejscia[0] + ":" + raport.godzinaWejscia[1] + ":" + raport.godzinaWejscia[2]);
+                    System.out.println("Godzina wyjścia: " + raport.godzinaWyjscia[0] + ":" + raport.godzinaWyjscia[1] + ":" + raport.godzinaWyjscia[2]);
+                    System.out.println("Czas pobytu: " + raport.timeOfAttendenceDay[0] + ":" + raport.timeOfAttendenceDay[1] + ":" + raport.timeOfAttendenceDay[2] + "\n");
+                }
+                System.out.println("-------------------------------------------------------------------------");
+                System.out.println();
+            }
+        }
     }
 
 }

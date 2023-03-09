@@ -1,5 +1,6 @@
 package SchoolProgrammer;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,7 +11,7 @@ import java.util.Scanner;
  * @version 1.0.0
  */
 
-public class ChildDatabase implements Serializable
+public class ChildDatabase
 {
 
     /**
@@ -32,7 +33,8 @@ public class ChildDatabase implements Serializable
         System.out.println(" 5. Print group list");
         System.out.println(" 6. Return to main manu");
         System.out.print(" Choose option: ");
-
+        // Kody:
+        // Usunięcie zawartości bazy danych : wejdź w opcje 2 remove child -> przejdź przez całość i kliknij nie -> gdy pojawi się "Press any key to return to previous menu..." wpisz "ClearDatabase"
 
     }
 
@@ -49,7 +51,7 @@ public class ChildDatabase implements Serializable
             printChildDatabaseMenu();
 
             Scanner scanner = new Scanner(System.in);
-            int choice = InputValidator.validate(6);
+            int choice = InputValidator.validate(7);
 
             switch (choice)
             {
@@ -63,7 +65,9 @@ public class ChildDatabase implements Serializable
                 {
                     removeChildFromDatabase();
                     System.out.println("Press any key to return to previous menu...");
-                    scanner.nextLine();
+                    String temp = scanner.nextLine();
+                    if(temp.equals("ClearDatabase"))
+                        childDatabase.clear();
                 }
                 case 3 ->
                 {
@@ -82,15 +86,16 @@ public class ChildDatabase implements Serializable
                 }
                 case 5 ->
                 {
-
-
+                    searchDatabaseForChildByGroup();
                 }
+
             }
 
             if (choice == 6)
             {
                 break;
             }
+
         }
     }
 
@@ -255,6 +260,7 @@ public class ChildDatabase implements Serializable
     private int searchDatabaseForChildByID()
     {
         Scanner scanner = new Scanner(System.in);
+        int i = 1;
         System.out.println("Wprowadź numer ID: ");
         String id = InputValidator.validatePersonalId();
 
@@ -263,6 +269,7 @@ public class ChildDatabase implements Serializable
             if (child instanceof Child){
                 // oraz czy jego imie i nazwisko zgadzają się z poszukiwanymi
                 if (child.getIndywidualnyKod().equals(id)){
+                    System.out.print("### POZYCJA NR " + i + " #");
                     child.drukujDanePelne();
                     return childDatabase.indexOf(child);
                 }
@@ -318,6 +325,18 @@ public class ChildDatabase implements Serializable
         return pozycja;
     }
 
+    public Child chooseChild(){
+        ArrayList<Integer> pozycje = searchDatabaseForChild();
+
+        if(pozycje.get(0) >= 0)
+            System.out.print("Wybierz pozycję do edycji: ");
+        else{
+            System.out.println("Błąd wyszukiwania! Spróbuj ponownie!");
+        }
+
+        return childDatabase.get(pozycje.get(InputValidator.validate(pozycje.size()) - 1));
+    }
+
     /**
      * Metoda pozwala edytować dane obiektu dziecko
      */
@@ -325,18 +344,10 @@ public class ChildDatabase implements Serializable
     {
         Scanner scanner = new Scanner(System.in);
 
-        ArrayList<Integer> pozycje = searchDatabaseForChild();
-        if(pozycje.get(0) >= 0)
-            System.out.print("Wybierz pozycję do edycji: ");
-        else{
-            System.out.println("Błąd wyszukiwania! Spróbuj ponownie!");
-            return 0;
-        }
+         Child child = chooseChild(); //pobiera pozycję obiektu z bazy danych i kopiuje jego referencje do zmiennej child.
 
-
-        if (pozycje.get(0) >= 0)
+        if (child != null)
         {
-            Child child = childDatabase.get(pozycje.get(InputValidator.validate(pozycje.size()) - 1)); //pobiera pozycję obiektu z bazy danych i kopiuje jego referencje do zmiennej child.
             while (true)
             {
                 System.out.println("1. Imię: " + child.getImie());
